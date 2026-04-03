@@ -1,0 +1,54 @@
+/* src/styles/DragDrop.css */
+.drag-area {
+  width: 580px;
+  height: 400px;
+  background-color: #0b0b15;
+  border-radius: 12px;
+  /* 紫色虛線 */
+  border: 16px dashed #3d3d6a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 懸停效果：讓虛線發光 */
+.drag-area:hover,
+.drag-area.hover {
+  border-color: #908eb9;
+  background-color: #0e0e1f;
+  box-shadow: 0 0 20px rgba(144, 142, 185, 0.1);
+}
+
+/* 中央的「請將檔案拖曳至此」文字 */
+.drag-area p {
+  color: #eed4b7;
+  font-size: 1.2rem;
+  margin-top: 24px;
+  letter-spacing: 2px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* 圖示容器 */
+.upload-icon-main {
+  width: 80px;
+  height: auto;
+  fill: #eed4b7;
+}
+
+.drag-area img {
+  width: 100px;
+  height: auto;
+
+  margin-bottom: 24px;
+
+  transition: transform 0.2s ease-in-out;
+}
+
+.drag-area:hover img {
+  transform: scale(1.1);
+}

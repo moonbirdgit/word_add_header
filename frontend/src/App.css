@@ -1,0 +1,26 @@
+/* src/App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #05050d; /* 截圖中的底色 */
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 增加一個細微的漸變感，模仿設計稿的深度 */
+  background: radial-gradient(circle at center, #0b0b18 0%, #05050d 100%);
+}

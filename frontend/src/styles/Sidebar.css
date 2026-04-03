@@ -1,0 +1,47 @@
+/* src/styles/Sidebar.css */
+.sidebar {
+  /* 最外層負責螢光效果 */
+  width: 8vw;
+  min-width: 80px;
+  height: 100vh;
+  background-color: #0b0b15;
+  flex-direction: column;
+  align-items: center;
+
+  border-left: 0.5px solid #ffffff;
+  box-shadow:
+    inset 2px 0 0 0 #f2d1b0,
+    inset 6px 0 10px 0 rgba(242, 209, 176, 0.6),
+    inset 12px 0 20px 0 rgba(242, 209, 176, 0.3);
+
+  border-radius: 0 8px 8px 0;
+  display: flex;
+}
+
+.sidebar-logos {
+  /* 跟 sidebar 一樣 只是不想動到他本人 */
+  width: 100%;
+  height: 100%;
+}
+.icons {
+  /* 只要是 icon 大小都統一 被選要放大 */
+  transition: transform 0.2s ease-in-out;
+  width: 50px;
+  height: auto;
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+  }
+}
+.top {
+  /* 佔 bar 的大部分 推一下 */
+  height: 85%;
+  padding-top: 68px;
+}
+.buttom {
+  /* 基本上只給 goBack 用 */
+  height: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

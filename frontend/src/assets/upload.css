@@ -1,0 +1,25 @@
+/* tdesign:file-add-filled */
+
+position: relative;
+width: 141px;
+height: 141px;
+
+/* Vector */
+
+position: absolute;
+left: 12.5%;
+right: 12.5%;
+top: 4.17%;
+bottom: 4.17%;
+
+background: #f2d1b0;
+
+/* Vector */
+
+position: absolute;
+left: 58.33%;
+right: 0%;
+top: 58.33%;
+bottom: 0%;
+
+background: #f2d1b0;

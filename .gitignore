@@ -1,0 +1,10 @@
+frontend/node_modules/
+# 忽略 Python 暫存與虛擬環境
+backend/__pycache__/
+backend/temp_uploads/
+backend/venv/
+*.zip
+
+# 系統雜物
+.DS_Store
+Thumbs.db

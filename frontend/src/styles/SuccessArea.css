@@ -1,0 +1,62 @@
+.success-area {
+  width: 580px;
+  height: 400px;
+  background-color: #0b0b15;
+  border-radius: 12px;
+  border: 4px solid #908eb9; /* 紫色實線邊框 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #eed4b7;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.success-icon {
+  margin-bottom: 20px;
+}
+
+.success-text {
+  font-size: 24px;
+  margin-bottom: 50px;
+  letter-spacing: 1px;
+}
+
+.highlight {
+  border-bottom: 2px solid #eed4b7;
+  font-weight: bold;
+  padding: 0 4px;
+}
+
+.button-group {
+  display: flex;
+  gap: 80px;
+}
+
+.nav-btn-action {
+  background: none;
+  border: none;
+  color: #eed4b7;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.nav-btn-action:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
