@@ -4,7 +4,7 @@ FROM python:3.10-slim
 # 安裝 LibreOffice (處理 .doc 轉檔)
 RUN apt-get update && apt-get install -y libreoffice --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /word_add_header
 
 # 注意這裡的路徑要指向 backend 資料夾
 COPY backend/requirements.txt .
