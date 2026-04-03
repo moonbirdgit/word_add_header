@@ -1,57 +1,46 @@
-import pythoncom
 import os
 import re
 import uuid
 import shutil
 import zipfile
-import sys
-import time
+import subprocess # 🚀 改用這個來呼叫 Docker 裡的 LibreOffice
 from flask import Flask, request, send_file, after_this_request
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-import win32com.client as win32
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = 'temp_uploads'
-sys.stdout.reconfigure(encoding='utf-8')
+# 🚀 Cloud Run 環境建議使用 /tmp，這是 Linux 容器內可寫入的記憶體空間
+UPLOAD_FOLDER = '/tmp/temp_uploads'
 
-# 確保啟動時先清空一次舊的暫存區
 def init_storage():
     if os.path.exists(UPLOAD_FOLDER):
         try:
             shutil.rmtree(UPLOAD_FOLDER)
-            print("已清理舊的暫存目錄")
         except Exception as e:
-            print(f"啟動清理失敗: {e}")
+            print(f"清理失敗: {e}")
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def extract_number(filename):
     match = re.search(r'附件(\d+)', filename)
     return int(match.group(1)) if match else None
 
+# 🚀 關鍵修正：將 win32 轉檔換成 Linux 指令
 def convert_doc_to_docx(folder_path):
-    pythoncom.CoInitialize()
-    try:
-        # 使用更穩定的 Dispatch 方式
-        word = win32.DispatchEx('Word.Application')
-        word.Visible = False
-        files = [f for f in os.listdir(folder_path) if f.lower().endswith('.doc') and not f.startswith('~$')]
-        
-        for f in files:
-            abs_path = os.path.abspath(os.path.join(folder_path, f))
-            new_path = abs_path + "x"
-            if not os.path.exists(new_path):
-                doc = word.Documents.Open(abs_path)
-                doc.SaveAs(new_path, FileFormat=16) # 16 = wdFormatXMLDocument
-                doc.Close()
-        word.Quit()
-    except Exception as e:
-        print(f"轉檔出錯: {e}")
-    finally:
-        pythoncom.CoUninitialize()
+    files = [f for f in os.listdir(folder_path) if f.lower().endswith('.doc') and not f.startswith('~$')]
+    for f in files:
+        abs_path = os.path.abspath(os.path.join(folder_path, f))
+        try:
+            # 呼叫 Dockerfile 裡安裝的 libreoffice 進行轉檔
+            subprocess.run([
+                'libreoffice', '--headless', '--convert-to', 'docx', 
+                abs_path, '--outdir', folder_path
+            ], check=True)
+            print(f"Linux 轉檔完成: {f}")
+        except Exception as e:
+            print(f"Linux 轉檔出錯: {e}")
 
 @app.route('/process', methods=['POST'])
 def process():
@@ -59,19 +48,15 @@ def process():
     user_dir = os.path.join(UPLOAD_FOLDER, session_id)
     os.makedirs(user_dir, exist_ok=True)
 
-    # 1. 儲存檔案
     uploaded_files = request.files.getlist('files')
     for file in uploaded_files:
         if file.filename:
-            # 🚀 關鍵修正：使用 os.path.basename 確保只取得 "附件0.docx"
-            # 這樣就不會出現 "for_doc/附件0.docx" 導致路徑找不到的問題
             safe_filename = os.path.basename(file.filename)
             file.save(os.path.join(user_dir, safe_filename))
 
-    # 2. 轉檔 (.doc -> .docx)
+    # 執行 Linux 轉檔
     convert_doc_to_docx(user_dir)
 
-    # 3. 標註邏輯
     docx_files = [f for f in os.listdir(user_dir) if f.endswith('.docx') and not f.startswith('~$')]
     for filename in docx_files:
         num = extract_number(filename)
@@ -87,7 +72,6 @@ def process():
             except Exception as e:
                 print(f"標註 {filename} 失敗: {e}")
 
-    # 4. 打包 ZIP
     zip_filename = f"{session_id}.zip"
     zip_path = os.path.join(UPLOAD_FOLDER, zip_filename)
     
@@ -96,26 +80,19 @@ def process():
             if f.endswith('.docx'):
                 z.write(os.path.join(user_dir, f), f)
 
-    # 🚀 5. 自動清理邏輯
-    # 使用 after_this_request 在發送完檔案後把整個資料夾刪掉
     @after_this_request
     def cleanup(response):
         try:
-            # 關閉所有可能佔用的檔案流後刪除
             shutil.rmtree(user_dir)
-            # ZIP 檔案也刪除
             if os.path.exists(zip_path):
                 os.remove(zip_path)
-            print(f"成功清理 Session: {session_id}")
-        except Exception as e:
-            print(f"清理失敗: {e}")
+        except: pass
         return response
 
     return send_file(zip_path, as_attachment=True, download_name="processed_files.zip")
 
 if __name__ == '__main__':
     init_storage()
-    import os
+    # 🚀 確保讀取 Cloud Run 的 PORT
     port = int(os.environ.get('PORT', 8080))
-    # 必須監聽 0.0.0.0，不能寫 127.0.0.1
     app.run(host='0.0.0.0', port=port)
