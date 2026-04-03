@@ -28,7 +28,7 @@ function App() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/process",
+        "https://word-add-header-598245268617.europe-west1.run.app/process",
         formData,
         {
           responseType: "blob",
