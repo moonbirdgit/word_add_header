@@ -115,6 +115,7 @@ def process():
 
 if __name__ == '__main__':
     init_storage()
-    # 注意：在 Windows 使用 win32com 時，建議不要開啟 debug=True，
-    # 因為 debug 模式會重啟兩次 Python，有時會導致 COM 鎖死。
-    app.run(port=5000, debug=False)
+    import os
+    port = int(os.environ.get('PORT', 8080))
+    # 必須監聽 0.0.0.0，不能寫 127.0.0.1
+    app.run(host='0.0.0.0', port=port)
