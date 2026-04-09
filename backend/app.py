@@ -91,6 +91,43 @@ def process():
 
     return send_file(zip_path, as_attachment=True, download_name="processed_files.zip")
 
+@app.route('/convert-pdf', methods=['POST'])
+def convert_pdf():
+    session_id = str(uuid.uuid4())
+    user_dir = os.path.join(UPLOAD_FOLDER, session_id)
+    os.makedirs(user_dir, exist_ok=True)
+
+    files = request.files.getlist('files')
+    for file in files:
+        if file.filename:
+            safe_name = os.path.basename(file.filename)
+            file.save(os.path.join(user_dir, safe_name))
+
+    # 🚀 使用 LibreOffice 指令直接將所有 doc/docx 轉為 pdf
+    try:
+        # --convert-to pdf 會自動處理資料夾內支援的格式
+        subprocess.run([
+            'libreoffice', '--headless', '--convert-to', 'pdf', 
+            os.path.join(user_dir, '*'), '--outdir', user_dir
+        ], shell=True, check=True)
+    except Exception as e:
+        print(f"PDF 轉檔失敗: {e}")
+
+    zip_path = os.path.join(UPLOAD_FOLDER, f"{session_id}_pdf.zip")
+    with zipfile.ZipFile(zip_path, 'w') as z:
+        for f in os.listdir(user_dir):
+            if f.lower().endswith('.pdf'):
+                z.write(os.path.join(user_dir, f), f)
+
+    @after_this_request
+    def cleanup(response):
+        shutil.rmtree(user_dir, ignore_errors=True)
+        if os.path.exists(zip_path): os.remove(zip_path)
+        return response
+
+    return send_file(zip_path, as_attachment=True, download_name="converted_pdfs.zip")
+
+
 if __name__ == '__main__':
     init_storage()
     # 🚀 確保讀取 Cloud Run 的 PORT
